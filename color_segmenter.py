@@ -79,17 +79,8 @@ def main():
                 print('writing dictionary data to file ' + file_name)
                 json.dump(data, file_handle)
 
-
         if key == ord('q'):  # sai do programa e não guarda
-
-            data = {'limits': {'B': {'max': ranges['b']['max'], 'min': ranges['b']['min']},
-                               'G': {'max': ranges['g']['max'], 'min': ranges['g']['min']},
-                               'R': {'max': ranges['r']['max'], 'min': ranges['r']['min']}, }}
-
-            with open(file_name, 'w') as file_handle:
-                print('writing dictionary data to file ' + file_name)
-                json.dump(data, file_handle)
-            print('You pressed q, aborting.')
+            print('You pressed q, quiting without saving values.')
             break
     cv2.destroyAllWindows()
 if __name__ == '__main__':
