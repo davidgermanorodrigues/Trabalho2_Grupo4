@@ -76,7 +76,7 @@ def main():
                                'R': {'max': ranges['r']['max'], 'min': ranges['r']['min']}, }}
 
             with open(file_name, 'w') as file_handle:
-                print('writing dictionary data to file ' + file_name)
+                print('writing color limits to file ' + file_name)
                 json.dump(data, file_handle)
 
         if key == ord('q'):  # sai do programa e não guarda
