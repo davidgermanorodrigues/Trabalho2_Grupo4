@@ -11,6 +11,7 @@ window_original = 'original'
 window_mask = 'canvas'
 window_segmentation = 'Segmentation'
 global count
+global i
 
 def main():
 
@@ -52,6 +53,7 @@ def main():
     center_X = []
     center_Y = []
     count = 0
+    i = 0
 
     while True:
 
@@ -60,9 +62,15 @@ def main():
 
         image_gui = copy.deepcopy(image)
 
-        # Criação da máscara branca
-        mask = np.ndarray(shape=(height, width), dtype=np.uint8)
-        mask.fill(255)      #Totalmente branca
+        if i == 0:                                      #Só inicializa o "canvas" uma vez
+            # Criação da máscara branca
+            mask_white = np.zeros([height, width, 3], dtype=np.uint8)
+            # mask_white = np.ndarray(shape=(height, width), dtype=np.uint8)
+            mask_white.fill(255)      #Totalmente branca
+            i += 1
+            print(type(mask_white))
+
+
 
         # Criação da imagem processada
         mins = np.array([ranges['b']['min'], ranges['g']['min'], ranges['r']['min']])
@@ -92,22 +100,16 @@ def main():
 
             # Desenhar a verde na imagem original
             mask_largest = mask_largest.astype(np.bool)  # Temos de converter a mask_largest em bool para puder usá-la como 'filtro' na imagem original
-            image[mask_largest] = (0, 255, 0)  # Pintamos de verde na imagem original
+            image[mask_largest] = (0, 255, 255)  # Pintamos de verde na imagem original
 
             # Desenha uma cruz vermelha no centróide
             dim_cross = 5
-            cv2.line(image, (cX-dim_cross, cY-dim_cross), (cX+dim_cross, cY+dim_cross), (0, 0, 255), 2)
-            cv2.line(image, (cX-dim_cross, cY+dim_cross), (cX+dim_cross, cY-dim_cross), (0, 0, 255), 2)
+            cv2.line(image, pt1=(cX-dim_cross, cY-dim_cross), pt2=(cX+dim_cross, cY+dim_cross), color=(0, 0, 255), thickness=2)
+            cv2.line(image, pt1=(cX-dim_cross, cY+dim_cross), pt2=(cX+dim_cross, cY-dim_cross), color=(0, 0, 255), thickness=2)
 
             #Desenha a linha na máscara branca
             center_X.append(cX)
             center_Y.append(cY)
-
-            for i in center_X:
-                print('Cx = ' + str(i))
-            for i in center_Y:
-                print('Cy = ' + str(i))
-
 
             # print(len(center_X))
             # print(center_X)
@@ -115,7 +117,21 @@ def main():
 
             # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas
             if len(center_X) >= 3:
-                cv2.line(mask, (center_X[count-2], center_Y[count-2]), (center_X[count-1], center_Y[count-1]), (0, 0, 255), 2)
+                cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=(0, 255, 255), thickness=10)
+
+                # mask_temp = np.ndarray(shape=(height, width), dtype=np.uint8)
+                # mask_temp.fill(0)  # Totalmente branca
+                #
+                # mask_aux = np.ndarray(shape=(height, width), dtype=np.uint8)
+                # mask_aux.fill(0)  # Totalmente branca
+                # mask_aux = mask_aux.astype(np.bool)
+                #
+                # cv2.line(mask_temp, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=(0, 255, 255), thickness=10)
+                #
+                # # mask_white[mask_aux] = mask_temp
+
+
+
 
         key = cv2.waitKey(5)
 
@@ -124,9 +140,8 @@ def main():
             print('You pressed q, quitting.')
             break
 
-
         cv2.imshow(window_original, image)  # Mostra a imagem de video da webcam
-        cv2.imshow(window_mask, mask)  # Mostra a imagem de video da webcam
+        cv2.imshow(window_mask, mask_white)  # Mostra a imagem de video da webcam
         cv2.imshow(window_segmentation, image_processed)  # Mostra a janela com o video segmentado
         cv2.imshow('mask_largest', mask_largest.astype(np.uint8)*255)  # Mostra a imagem de video da webcam, temos de a converter de volta a unit8
 
