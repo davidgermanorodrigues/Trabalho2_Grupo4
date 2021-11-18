@@ -5,6 +5,7 @@ import argparse
 import cv2
 import copy
 import json
+import pprint
 
 # Global variables
 window_name = 'original'
@@ -76,12 +77,19 @@ def main():
                                'R': {'max': ranges['r']['max'], 'min': ranges['r']['min']}, }}
 
             with open(file_name, 'w') as file_handle:
-                print('writing color limits to file ' + file_name)
+                print('You pressed w, writing color limits to file ' + file_name)
                 json.dump(data, file_handle)
 
+                pp = pprint.PrettyPrinter(indent=1)      # Set the dictionary initial indentation.
+                pp.pprint(data)                          # Print with pretty print
+
+                file_handle.close()
+
         if key == ord('q'):  # sai do programa e não guarda
-            print('You pressed q, quiting without saving values.')
+            print('You pressed q, quitting without saving values.')
             break
     cv2.destroyAllWindows()
+
+
 if __name__ == '__main__':
     main()
