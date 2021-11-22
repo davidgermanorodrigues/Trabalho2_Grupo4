@@ -64,6 +64,7 @@ def main():
         height, width, _, = image.shape       # get dimensions of the image
 
         image_gui = copy.deepcopy(image)
+        image = cv2.flip(image, 1)          # espelhar imagem
 
         if i == 0:                                      #Só inicializa o "canvas" uma vez
             # Criação da máscara branca
@@ -93,39 +94,39 @@ def main():
             print('You pressed r, now you are painting in red.')
 
         #Pintar a verde
-        if key == ord('g'):
+        elif key == ord('g'):
             pencil_color = (0, 255, 0)
             print('You pressed g, now you are painting in green.')
 
         #Pintar a azul
-        if key == ord('b'):
+        elif key == ord('b'):
             pencil_color = (255, 0, 0)
             print('You pressed b, now you are painting in blue.')
 
         #Aumenta a espessura
-        if key == ord('+'):
+        elif key == ord('+'):
             pencil_thickness = pencil_thickness + 1
             print('You pressed +, now you are painting with ' + str(pencil_thickness) + ' pencil_thickness.')
 
         #Diminui a espessura
-        if key == ord('-'):
+        elif key == ord('-'):
             pencil_thickness = pencil_thickness - 1
             print('You pressed -, now you are painting with ' + str(pencil_thickness) + ' pencil_thickness.')
             if pencil_thickness <= 1:
                 pencil_thickness = 1
 
         # Limpa a tela
-        if key == ord('c'):
+        elif key == ord('c'):
             mask_white.fill(255)      #Totalmente branca
             print('You pressed c, canvas is now cleared.')
 
         # Grava a tela
-        if key == ord('w'):
+        elif key == ord('w'):
             status = cv2.imwrite('/home/germano/Desktop/Trabalho2_Grupo4/'+ str(time.localtime()) +'.png', mask_white)
             print('You pressed w, canvas is now saved.')
 
         #Sai do programa
-        if key == ord('q'):
+        elif key == ord('q'):
             print('You pressed q, quitting.')
             break
 
