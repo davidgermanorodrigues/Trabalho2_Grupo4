@@ -6,6 +6,7 @@ import cv2
 import copy
 import json
 import time
+import math
 
 # Global variables
 window_original = 'original'
@@ -14,11 +15,26 @@ window_segmentation = 'Segmentation'
 global count
 global i
 
+def shake_prevention(x, y, mask, color, thickness):
+
+    pt1_X = x[0]
+    pt1_Y = y[0]
+    pt2_X = x[1]
+    pt2_Y = y[1]
+
+    D = math.sqrt((pt2_X - pt1_X)**2 + (pt2_Y - pt1_Y)**2)
+
+    # print(D)
+    if D < 30:
+        cv2.line(mask, pt1=(pt1_X, pt1_Y), pt2=(pt2_X, pt2_Y), color=color, thickness=thickness)
+
+
 def main():
 
     # Leitura dos argumentos da linha de comandos
     parser = argparse.ArgumentParser(description='Definitions of test mode')
-    parser.add_argument('-j', '--json', type=str, help='Full path to json file.')
+    parser.add_argument('-j', '--json', type=str, help='Full path to json file.',)
+    parser.add_argument('-sh', '--shake', type=bool, help='use_shake_detection 1/0')
     global args
     args = vars(parser.parse_args())
 
@@ -58,20 +74,20 @@ def main():
     pencil_color = (0,0,0)
     pencil_thickness = 10
 
-    while True:
+    _, image = capture.read()           # get an image from the camera
+    height, width, _, = image.shape       # get dimensions of the image
+    # Criação da máscara branca
+    mask_white = np.zeros([height, width, 3], dtype=np.uint8)
+    # mask_white = np.ndarray(shape=(height, width), dtype=np.uint8)
+    mask_white.fill(255)      #Totalmente branca
+    i += 1
+    print(type(mask_white))
 
+    while True:
         _, image = capture.read()           # get an image from the camera
-        height, width, _, = image.shape       # get dimensions of the image
 
         image_gui = copy.deepcopy(image)
-
-        if i == 0:                                      #Só inicializa o "canvas" uma vez
-            # Criação da máscara branca
-            mask_white = np.zeros([height, width, 3], dtype=np.uint8)
-            # mask_white = np.ndarray(shape=(height, width), dtype=np.uint8)
-            mask_white.fill(255)      #Totalmente branca
-            i += 1
-            # print(type(mask_white))
+        image = cv2.flip(image, 1)          # espelhar imagem da webcam
 
         # Criação da imagem processada
         mins = np.array([ranges['b']['min'], ranges['g']['min'], ranges['r']['min']])
@@ -91,39 +107,39 @@ def main():
             print('You pressed r, now you are painting in red.')
 
         #Pintar a verde
-        if key == ord('g'):
+        elif key == ord('g'):
             pencil_color = (0, 255, 0)
             print('You pressed g, now you are painting in green.')
 
         #Pintar a azul
-        if key == ord('b'):
+        elif key == ord('b'):
             pencil_color = (255, 0, 0)
             print('You pressed b, now you are painting in blue.')
 
         #Aumenta a espessura
-        if key == ord('+'):
+        elif key == ord('+'):
             pencil_thickness = pencil_thickness + 1
             print('You pressed +, now you are painting with ' + str(pencil_thickness) + ' pencil_thickness.')
 
         #Diminui a espessura
-        if key == ord('-'):
+        elif key == ord('-'):
             pencil_thickness = pencil_thickness - 1
             print('You pressed -, now you are painting with ' + str(pencil_thickness) + ' pencil_thickness.')
             if pencil_thickness <= 1:
                 pencil_thickness = 1
 
         # Limpa a tela
-        if key == ord('c'):
+        elif key == ord('c'):
             mask_white.fill(255)      #Totalmente branca
             print('You pressed c, canvas is now cleared.')
 
         # Grava a tela
-        if key == ord('w'):
-            status = cv2.imwrite('/home/germano/Desktop/Trabalho2_Grupo4/'+ str(time.localtime()) +'.png', mask_white)
+        elif key == ord('w'):
+            status = cv2.imwrite(time.strftime("%Y-%m-%d-%H:%M")+'.png', mask_white)
             print('You pressed w, canvas is now saved.')
 
         #Sai do programa
-        if key == ord('q'):
+        elif key == ord('q'):
             print('You pressed q, quitting.')
             break
 
@@ -159,15 +175,27 @@ def main():
             # print(center_X)
             # print(center_Y)
 
-            # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas
+            if args.get('shake') == True:
+                if count == 2:
+                    shake_prevention(center_X, center_Y, mask_white, pencil_color, pencil_thickness)
 
-            if len(center_X) >= 2:
-                cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
+            else:
+                # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas
+                if len(center_X) >= 2:
+                    cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
+
+            if count >= 2:
+                del center_X[0]
+                del center_Y[0]
+                count-=1
 
         cv2.imshow(window_original, image)  # Mostra a imagem de video da webcam
         cv2.imshow(window_mask, mask_white)  # Mostra a imagem de video da webcam
         cv2.imshow(window_segmentation, image_processed)  # Mostra a janela com o video segmentado
         cv2.imshow('mask_largest', mask_largest.astype(np.uint8)*255)  # Mostra a imagem de video da webcam, temos de a converter de volta a unit8
+
+
+
 
     cv2.destroyAllWindows()
 
