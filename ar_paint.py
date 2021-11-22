@@ -54,6 +54,8 @@ def main():
     center_Y = []
     count = 0
     i = 0
+    pencil_color = (0,0,0)
+    pencil_thickness = 10
 
     while True:
 
@@ -82,6 +84,49 @@ def main():
         mask_largest = np.ndarray(shape=(height, width), dtype=np.uint8)
         mask_largest.fill(0)        #Totalmente preta
 
+        key = cv2.waitKey(5)
+
+        #Pintar a vermelho
+        if key == ord('r'):
+            pencil_color = (0, 0, 255)
+            print('You pressed r, now you are painting in red.')
+
+        #Pintar a verde
+        if key == ord('g'):
+            pencil_color = (0, 255, 0)
+            print('You pressed g, now you are painting in green.')
+
+        #Pintar a azul
+        if key == ord('b'):
+            pencil_color = (255, 0, 0)
+            print('You pressed b, now you are painting in blue.')
+
+        #Aumenta a espessura
+        if key == ord('+'):
+            pencil_thickness = pencil_thickness + 1
+            print('You pressed +, now you are painting with ' + str(pencil_thickness) + ' pencil_thickness.')
+
+        #Diminui a espessura
+        if key == ord('-'):
+            pencil_thickness = pencil_thickness - 1
+            print('You pressed -, now you are painting with ' + str(pencil_thickness) + ' pencil_thickness.')
+            if pencil_thickness <= 1:
+                pencil_thickness = 1
+
+        # Limpa a tela
+        if key == ord('c'):
+            mask_white.fill(255)      #Totalmente branca
+            print('You pressed c, you cleared the canvas.')
+
+        # Grava a tela
+        if key == ord('w'):
+            status = cv2.imwrite('/home/germano/Desktop/Trabalho2_Grupo4/python_grey.png', mask_white)
+            print('You pressed w, you save the canvas.')
+
+        #Sai do programa
+        if key == ord('q'):
+            print('You pressed q, quitting.')
+            break
 
         if np.mean(image_processed) > 0:        # Verifica se existem objetos (>0)
 
@@ -100,7 +145,7 @@ def main():
 
             # Desenhar a verde na imagem original
             mask_largest = mask_largest.astype(np.bool)  # Temos de converter a mask_largest em bool para puder usá-la como 'filtro' na imagem original
-            image[mask_largest] = (0, 255, 255)  # Pintamos de verde na imagem original
+            image[mask_largest] = (0, 255, 0)  # Pintamos de verde na imagem original
 
             # Desenha uma cruz vermelha no centróide
             dim_cross = 5
@@ -116,29 +161,8 @@ def main():
             # print(center_Y)
 
             # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas
-            if len(center_X) >= 3:
-                cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=(0, 255, 255), thickness=10)
-
-                # mask_temp = np.ndarray(shape=(height, width), dtype=np.uint8)
-                # mask_temp.fill(0)  # Totalmente branca
-                #
-                # mask_aux = np.ndarray(shape=(height, width), dtype=np.uint8)
-                # mask_aux.fill(0)  # Totalmente branca
-                # mask_aux = mask_aux.astype(np.bool)
-                #
-                # cv2.line(mask_temp, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=(0, 255, 255), thickness=10)
-                #
-                # # mask_white[mask_aux] = mask_temp
-
-
-
-
-        key = cv2.waitKey(5)
-
-        #Sai do programa
-        if key == ord('q'):
-            print('You pressed q, quitting.')
-            break
+            if len(center_X) >= 2:
+                cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
 
         cv2.imshow(window_original, image)  # Mostra a imagem de video da webcam
         cv2.imshow(window_mask, mask_white)  # Mostra a imagem de video da webcam
