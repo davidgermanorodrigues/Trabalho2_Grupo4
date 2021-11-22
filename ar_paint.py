@@ -71,9 +71,7 @@ def main():
             # mask_white = np.ndarray(shape=(height, width), dtype=np.uint8)
             mask_white.fill(255)      #Totalmente branca
             i += 1
-            print(type(mask_white))
-
-
+            # print(type(mask_white))
 
         # Criação da imagem processada
         mins = np.array([ranges['b']['min'], ranges['g']['min'], ranges['r']['min']])
@@ -162,6 +160,7 @@ def main():
             # print(center_Y)
 
             # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas
+
             if len(center_X) >= 2:
                 cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
 
