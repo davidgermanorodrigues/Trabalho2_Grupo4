@@ -5,6 +5,7 @@ import argparse
 import cv2
 import copy
 import json
+import time
 
 # Global variables
 window_original = 'original'
@@ -116,12 +117,12 @@ def main():
         # Limpa a tela
         if key == ord('c'):
             mask_white.fill(255)      #Totalmente branca
-            print('You pressed c, you cleared the canvas.')
+            print('You pressed c, canvas is now cleared.')
 
         # Grava a tela
         if key == ord('w'):
-            status = cv2.imwrite('/home/germano/Desktop/Trabalho2_Grupo4/python_grey.png', mask_white)
-            print('You pressed w, you save the canvas.')
+            status = cv2.imwrite('/home/germano/Desktop/Trabalho2_Grupo4/'+ str(time.localtime()) +'.png', mask_white)
+            print('You pressed w, canvas is now saved.')
 
         #Sai do programa
         if key == ord('q'):
