@@ -173,9 +173,9 @@ def main():
                     cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
 
             if count > 10:
-                del center_X[10]
-                del center_Y[10]
-                count-=1
+                del center_X[0:5]
+                del center_Y[0:5]
+                count-=5
 
         cv2.imshow(window_original, image)  # Mostra a imagem de video da webcam
         cv2.imshow(window_mask, mask_white)  # Mostra a imagem de video da webcam
