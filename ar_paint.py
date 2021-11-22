@@ -14,6 +14,11 @@ window_segmentation = 'Segmentation'
 global count
 global i
 
+# def shake_prevention():
+
+
+
+
 def main():
 
     # Leitura dos argumentos da linha de comandos
@@ -58,23 +63,20 @@ def main():
     pencil_color = (0,0,0)
     pencil_thickness = 10
 
-    while True:
+    _, image = capture.read()           # get an image from the camera
+    height, width, _, = image.shape       # get dimensions of the image
+    # Criação da máscara branca
+    mask_white = np.zeros([height, width, 3], dtype=np.uint8)
+    # mask_white = np.ndarray(shape=(height, width), dtype=np.uint8)
+    mask_white.fill(255)      #Totalmente branca
+    i += 1
+    print(type(mask_white))
 
+    while True:
         _, image = capture.read()           # get an image from the camera
-        height, width, _, = image.shape       # get dimensions of the image
 
         image_gui = copy.deepcopy(image)
         image = cv2.flip(image, 1)          # espelhar imagem da webcam
-
-        if i == 0:                                      #Só inicializa o "canvas" uma vez
-            # Criação da máscara branca
-            mask_white = np.zeros([height, width, 3], dtype=np.uint8)
-            # mask_white = np.ndarray(shape=(height, width), dtype=np.uint8)
-            mask_white.fill(255)      #Totalmente branca
-            i += 1
-            print(type(mask_white))
-
-
 
         # Criação da imagem processada
         mins = np.array([ranges['b']['min'], ranges['g']['min'], ranges['r']['min']])
@@ -122,7 +124,7 @@ def main():
 
         # Grava a tela
         elif key == ord('w'):
-            status = cv2.imwrite('/home/germano/Desktop/Trabalho2_Grupo4/'+ str(time.localtime()) +'.png', mask_white)
+            status = cv2.imwrite(time.strftime("%Y-%m-%d-%H:%M")+'.png', mask_white)
             print('You pressed w, canvas is now saved.')
 
         #Sai do programa
