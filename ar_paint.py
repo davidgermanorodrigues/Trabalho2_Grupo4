@@ -6,6 +6,7 @@ import cv2
 import copy
 import json
 import time
+import math
 
 # Global variables
 window_original = 'original'
@@ -14,9 +15,18 @@ window_segmentation = 'Segmentation'
 global count
 global i
 
-def shake_prevention():
+def shake_prevention(x, y, mask, color, thickness):
 
-    print('test')
+    pt1_X = x[0]
+    pt1_Y = y[0]
+    pt2_X = x[1]
+    pt2_Y = y[1]
+
+    D = math.sqrt((pt2_X - pt1_X)**2 + (pt2_Y - pt1_Y)**2)
+
+    # print(D)
+    if D < 30:
+        cv2.line(mask, pt1=(pt1_X, pt1_Y), pt2=(pt2_X, pt2_Y), color=color, thickness=thickness)
 
 
 def main():
@@ -166,16 +176,18 @@ def main():
             # print(center_Y)
 
             if args.get('shake') == True:
-                shake_prevention()
+                if count == 2:
+                    shake_prevention(center_X, center_Y, mask_white, pencil_color, pencil_thickness)
+
             else:
                 # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas
                 if len(center_X) >= 2:
                     cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
 
-            if count > 10:
-                del center_X[0:5]
-                del center_Y[0:5]
-                count-=5
+            if count >= 2:
+                del center_X[0]
+                del center_Y[0]
+                count-=1
 
         cv2.imshow(window_original, image)  # Mostra a imagem de video da webcam
         cv2.imshow(window_mask, mask_white)  # Mostra a imagem de video da webcam
