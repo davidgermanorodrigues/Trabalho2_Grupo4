@@ -64,7 +64,7 @@ def main():
         height, width, _, = image.shape       # get dimensions of the image
 
         image_gui = copy.deepcopy(image)
-        image = cv2.flip(image, 1)          # espelhar imagem
+        image = cv2.flip(image, 1)          # espelhar imagem da webcam
 
         if i == 0:                                      #Só inicializa o "canvas" uma vez
             # Criação da máscara branca
