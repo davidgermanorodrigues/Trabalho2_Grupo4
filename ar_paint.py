@@ -14,16 +14,17 @@ window_segmentation = 'Segmentation'
 global count
 global i
 
-# def shake_prevention():
+def shake_prevention():
 
-
+    print('test')
 
 
 def main():
 
     # Leitura dos argumentos da linha de comandos
     parser = argparse.ArgumentParser(description='Definitions of test mode')
-    parser.add_argument('-j', '--json', type=str, help='Full path to json file.')
+    parser.add_argument('-j', '--json', type=str, help='Full path to json file.',)
+    parser.add_argument('-sh', '--shake', type=bool, help='use_shake_detection 1/0')
     global args
     args = vars(parser.parse_args())
 
@@ -164,14 +165,23 @@ def main():
             # print(center_X)
             # print(center_Y)
 
-            # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas
-            if len(center_X) >= 2:
-                cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
+            if args.get('shake') == True:
+                shake_prevention()
+            else:
+                # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas
+                if len(center_X) >= 2:
+                    cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
 
         cv2.imshow(window_original, image)  # Mostra a imagem de video da webcam
         cv2.imshow(window_mask, mask_white)  # Mostra a imagem de video da webcam
         cv2.imshow(window_segmentation, image_processed)  # Mostra a janela com o video segmentado
         cv2.imshow('mask_largest', mask_largest.astype(np.uint8)*255)  # Mostra a imagem de video da webcam, temos de a converter de volta a unit8
+
+        if count > 6:
+            del center_X[0]
+            del center_Y[0]
+            count-=1
+
 
     cv2.destroyAllWindows()
 
