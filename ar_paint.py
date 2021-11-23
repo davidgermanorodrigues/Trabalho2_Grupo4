@@ -135,7 +135,8 @@ def main():
 
         # Grava a tela
         elif key == ord('w'):
-            status = cv2.imwrite(time.strftime("%Y-%m-%d-%H:%M")+'.png', mask_white)
+            # status = cv2.imwrite('canvas.png', mask_white)
+            status = cv2.imwrite(time.strftime('drawing_%a_%b_%Y-%m-%d-%H:%M') + '.png', mask_white)
             print('You pressed w, canvas is now saved.')
 
         #Sai do programa
