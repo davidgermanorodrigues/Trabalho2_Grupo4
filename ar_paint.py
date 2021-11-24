@@ -15,8 +15,7 @@ window_segmentation = 'Segmentation'
 global count
 global i
 
-def shake_prevention(x, y, mask, color, thickness):
-
+def shake_prevention_dist(x, y, c, mask, color, thickness):
     pt1_X = x[0]
     pt1_Y = y[0]
     pt2_X = x[1]
@@ -25,16 +24,80 @@ def shake_prevention(x, y, mask, color, thickness):
     D = math.sqrt((pt2_X - pt1_X)**2 + (pt2_Y - pt1_Y)**2)
 
     # print(D)
-    if D < 30:
+    if 3 < D < 50:
         cv2.line(mask, pt1=(pt1_X, pt1_Y), pt2=(pt2_X, pt2_Y), color=color, thickness=thickness)
+        del x[0]
+        del y[0]
+        c -= 1
+        return x, y, c
+    else:
+        del x[0:]
+        del y[0:]
+        c -= 2
+        return x, y, c
 
+
+def shake_prevention_3pts(x, y, c, mask, color, thickness):
+    pt1_X = x[0]
+    pt1_Y = y[0]
+    pt2_X = x[1]
+    pt2_Y = y[1]
+    pt3_X = x[2]
+    pt3_Y = y[2]
+
+    d12 = math.sqrt((pt2_X - pt1_X)**2 + (pt2_Y - pt1_Y)**2)
+    d13 = math.sqrt((pt3_X - pt1_X)**2 + (pt3_Y - pt1_Y)**2)
+    d23 = math.sqrt((pt3_X - pt2_X)**2 + (pt3_Y - pt2_Y)**2)
+
+    d = [d12, d13, d23]
+    # print(D)
+    if d[0] > 5 and d[1] > 5:
+        if (d[0] - d[1] < 10 and d[2] < 20 and d[0] > d[1]) or (d[0] - d[1] < 10 and 20 < d[2] < 30 and d[0] > d[1]) or (d[0] > d[1] and d[1] < 30):
+            cv2.line(mask, pt1=(pt1_X, pt1_Y), pt2=(pt3_X, pt3_Y), color=color, thickness=thickness)
+            del x[0:1]
+            del y[0:1]
+            c -= 2
+            return x, y, c
+        elif (d[0] - d[1] < 10 and d[2] < 20 and d[0] < d[1]) or (d[0] - d[1] < 10 and 20 < d[2] < 30 and d[0] < d[1]) or (d[0] < d[1] and d[0] < 30):
+            cv2.line(mask, pt1=(pt1_X, pt1_Y), pt2=(pt2_X, pt2_Y), color=color, thickness=thickness)
+            del x[2]
+            del x[0]
+            del y[2]
+            del y[0]
+            c -= 2
+            return x, y, c
+        elif d[0] > 30 and 30 < d[1] < d[0] < 50:
+            cv2.line(mask, pt1=(pt1_X, pt1_Y), pt2=(pt2_X, pt2_Y), color=color, thickness=thickness)
+            del x[2]
+            del x[0]
+            del y[2]
+            del y[0]
+            c -= 2
+            return x, y, c
+        elif d[1] > 30 and 30 < d[0] < d[1] < 50:
+            cv2.line(mask, pt1=(pt1_X, pt1_Y), pt2=(pt3_X, pt3_Y), color=color, thickness=thickness)
+            del x[0:1]
+            del y[0:1]
+            c -= 2
+            return x, y, c
+        else:
+            del x[0:]
+            del y[0:]
+            c -= 3
+            return x, y, c
+    else:
+        del x[0:]
+        del y[0:]
+        c -= 3
+        return x, y, c
 
 def main():
 
     # Leitura dos argumentos da linha de comandos
     parser = argparse.ArgumentParser(description='Definitions of test mode')
     parser.add_argument('-j', '--json', type=str, help='Full path to json file.',)
-    parser.add_argument('-sh', '--shake', type=bool, help='use_shake_detection 1/0')
+    parser.add_argument('-sh1', '--shake1', type=bool, help='use_shake_detection option 1')
+    parser.add_argument('-sh2', '--shake2', type=bool, help='use_shake_detection option 2')
     global args
     args = vars(parser.parse_args())
 
@@ -135,23 +198,26 @@ def main():
             # print(center_X)
             # print(center_Y)
 
-            if args.get('shake') == True:
-                if count == 2:
-                    shake_prevention(center_X, center_Y, mask_white, pencil_color, pencil_thickness)
-
+            if args.get('shake1'):
+                # print(center_X)
+                # print(center_Y)
+                print ('Using use_shake_prevention_3ptss.')
+                if len(center_X) == 3 and len(center_Y) == 3:
+                    (center_X, center_Y, count) = shake_prevention_3pts(center_X, center_Y, count, mask_white, pencil_color, pencil_thickness)
+            elif args.get('shake2'):
+                print ('Using use_shake_prevention_dist')
+                if len(center_X) == 2 and len(center_Y) == 2:
+                    (center_X, center_Y, count) = shake_prevention_dist(center_X, center_Y, count, mask_white, pencil_color, pencil_thickness)
             else:
                 # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas
                 if len(center_X) >= 2:
-                    cv2.line(mask_white, pt1=(center_X[count - 2], center_Y[count - 2]),
-                             pt2=(center_X[count - 1], center_Y[count - 1]), color=pencil_color,
-                             thickness=pencil_thickness)
+                    cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
+                    if count >= 2:
+                        del center_X[0]
+                        del center_Y[0]
+                        count -= 1
 
-            if count >= 2:
-                del center_X[0]
-                del center_Y[0]
-                count -= 1
-
-        key = cv2.waitKey(5)
+        key = cv2.waitKey(1)
 
         #Pintar a vermelho
         if key == ord('r'):
