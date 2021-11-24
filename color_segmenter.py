@@ -11,6 +11,8 @@ import pprint
 window_name = 'original'
 file_name = 'limits.json'
 global image_gray
+global image
+global data
 slider_max = 255
 trackbar_pos = 0
 
@@ -18,13 +20,35 @@ trackbar_pos = 0
 def onTrackbar(threshold):
     pass
 
-
 def main():
+
+    def mouseRGB(event,x,y,flags,param):
+        if event == cv2.EVENT_LBUTTONDOWN: #checks mouse left button down condition
+            colorsB = image[y,x,0]
+            colorsG = image[y,x,1]
+            colorsR = image[y,x,2]
+            colors = image[y,x]
+            print("Red: ",colorsR)
+            print("Green: ",colorsG)
+            print("Blue: ",colorsB)
+            print("BRG Format: ",colors)
+
+            data = {'limits': {'B': {'max': int(colorsB + 20), 'min': int(colorsB - 20)},
+                               'G': {'max': int(colorsG + 20), 'min': int(colorsG - 20)},
+                               'R': {'max': int(colorsR + 20), 'min': int(colorsB - 20)}, }}
+            with open(file_name, 'w') as file_handle:
+                print('You pressed left mouse button, writing color limits to file ' + file_name)
+                json.dump(data, file_handle)
+
+                pp = pprint.PrettyPrinter(indent=1)      # Set the dictionary initial indentation.
+                pp.pprint(data)                          # Print with pretty print
+                file_handle.close()
 
     # initial setup
     capture = cv2.VideoCapture(0)
 
     cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+    cv2.setMouseCallback(window_name,mouseRGB)
 
     #Criação das trackbars
     cv2.createTrackbar('trackbar_min_r', window_name, 0, slider_max, onTrackbar)
@@ -33,6 +57,7 @@ def main():
     cv2.createTrackbar('trackbar_max_r', window_name, 0, slider_max, onTrackbar)
     cv2.createTrackbar('trackbar_max_g', window_name, 0, slider_max, onTrackbar)
     cv2.createTrackbar('trackbar_max_b', window_name, 0, slider_max, onTrackbar)
+
 
     while True:
 
