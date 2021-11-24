@@ -190,17 +190,17 @@ def main():
 
             if flag_line == 1:
                 if args.get('shake1'):
-                    print('Using use_shake_prevention_3pts.')
+                    # print('Using use_shake_prevention_3pts.')
                     if len(center_X) >= 3 and len(center_Y) >= 3:
                         (center_X, center_Y, count) = shake_prevention_3pts(center_X, center_Y, count, mask_white, pencil_color, pencil_thickness)
                 elif args.get('shake2'):
-                    print('Using use_shake_prevention_dist')
+                    # print('Using use_shake_prevention_dist')
                     if len(center_X) >= 2 and len(center_Y) >= 2:
                         (center_X, center_Y, count) = shake_prevention_dist(center_X, center_Y, count, mask_white, pencil_color, pencil_thickness)
                 else:
                     # Verifica se existem argumentos suficientes nos arrays dos centróides para desenhar as linhas.
-                    if len(center_X) >= 2:
-                        cv2.line(mask_white, pt1=(center_X[count-2], center_Y[count-2]), pt2=(center_X[count-1], center_Y[count-1]), color=pencil_color, thickness=pencil_thickness)
+                    if len(center_X) == 2:
+                        cv2.line(mask_white, pt1=(center_X[0], center_Y[0]), pt2=(center_X[1], center_Y[1]), color=pencil_color, thickness=pencil_thickness)
                         if count >= 2:
                             del center_X[0]
                             del center_Y[0]
