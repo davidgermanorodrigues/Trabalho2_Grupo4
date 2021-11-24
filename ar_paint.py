@@ -209,6 +209,9 @@ def main():
             flag_line = 1
 
         else:
+            del center_X[0:]
+            del center_Y[0:]
+            c = 0
             flag_line = 0
 
         key = cv2.waitKey(1)
@@ -298,7 +301,7 @@ def main():
                 cv2.imshow(window_mask, mask_white)                 # Mostra a imagem de video da webcam.
                 cv2.imshow(window_segmentation, image_processed)    # Mostra a janela com o video segmentado.
 
-                key = cv2.waitKey(5)
+                key = cv2.waitKey(1)
 
                 # É necessário clicar no 'o' novamente para sair da funcionalidade e gravar na tela branca (canvas).
                 if key == ord('o'):
@@ -345,7 +348,7 @@ def main():
                 cv2.imshow(window_mask, mask_white)                 # Mostra a imagem de video da webcam.
                 cv2.imshow(window_segmentation, image_processed)    # Mostra a janela com o video segmentado.
 
-                key = cv2.waitKey(5)
+                key = cv2.waitKey(1)
 
                 # É necessário clicar no 't' novamente para sair da funcionalidade e gravar na tela branca (canvas).
                 if key == ord('t'):
