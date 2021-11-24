@@ -70,6 +70,8 @@ def main():
     center_X = []
     center_Y = []
     count = 0
+    conta_rect = 0
+    conta_circ = 0
     i = 0
     pencil_color = (0,0,0)
     pencil_thickness = 10
@@ -181,6 +183,8 @@ def main():
         # Limpa a tela
         elif key == ord('c'):
             mask_white.fill(255)      #Totalmente branca
+            conta_rect = 0
+            conta_circ = 0
             print('You pressed c, canvas is now cleared.')
 
         # Grava a tela
@@ -191,6 +195,8 @@ def main():
 
         #Desenha círculos na tela (canvas)
         elif key == ord('o'):
+
+            conta_circ += 1
 
             cent_atual = (center_X[len(center_X)-1] , center_Y[len(center_Y)-1])
             print(cent_atual)
@@ -235,11 +241,13 @@ def main():
                 # É necessário clicar no 'o' novamente para sair da funcionalidade e gravar na tela branca (canvas)
                 if key == ord('o'):
                     cv2.circle(mask_white, (cent_atual[0], cent_atual[1]), raio, (255, 255, 0), -1)
-                    # print('You draw a circle with ' + str(raio) + ' pixel radius.')
+                    cv2.putText(mask_white, 'Circulo ' + str(conta_circ), (cent_atual[0]-70,cent_atual[1]), 1, cv2.FONT_HERSHEY_DUPLEX , (255, 0, 0), 2)
                     break
 
         # Desenha retângulos na tela (canvas)
         elif key == ord('t'):
+
+            conta_rect += 1
 
             cent_atual = (center_X[len(center_X) - 1], center_Y[len(center_Y) - 1])
             print(cent_atual)
@@ -282,6 +290,10 @@ def main():
                 # É necessário clicar no 'o' novamente para sair da funcionalidade e gravar na tela branca (canvas)
                 if key == ord('t'):
                     cv2.rectangle(mask_white, (cent_atual[0], cent_atual[1]), (cX1, cY1), (255, 0, 255), -1)
+                    if conta_rect%2==0:
+                        cv2.putText(mask_white, 'Rectangulo ' + str(conta_rect), (cX1, cY1), 1, cv2.FONT_HERSHEY_DUPLEX , (255, 255, 0), 2)
+                    else:
+                        cv2.putText(mask_white, 'Rectangulo ' + str(conta_rect), (cX1, cY1-50), 1, cv2.FONT_HERSHEY_DUPLEX, (255, 255, 0), 2)
                     break
 
         #Sai do programa
