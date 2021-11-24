@@ -115,7 +115,7 @@ def main():
         g_max = data['limits']['G']['max']
         r_max = data['limits']['R']['max']
 
-        json_file.close()                           # Closing file
+        json_file.close()                          # Closing file
 
     ranges = {'b': {'min': b_min, 'max': b_max},        #Guarda os valores importados num dicionário chamado ranges
               'g': {'min': g_min, 'max': g_max},
