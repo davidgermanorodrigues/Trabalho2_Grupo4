@@ -52,16 +52,22 @@ def mouseRGB(event, x, y, flags, param):
 
     # Reset da Função
     if event == cv2.EVENT_RBUTTONDOWN:
-        colorsB = []
-        colorsG = []
-        colorsR = []
-        b_min = cv2.setTrackbarPos('trackbar_min_b', window_name, 0)
-        g_min = cv2.setTrackbarPos('trackbar_min_g', window_name, 0)
-        r_min = cv2.setTrackbarPos('trackbar_min_r', window_name, 0)
-        b_max = cv2.setTrackbarPos('trackbar_max_b', window_name, 0)
-        g_max = cv2.setTrackbarPos('trackbar_max_g', window_name, 0)
-        r_max = cv2.setTrackbarPos('trackbar_max_r', window_name, 0)
+        if len(colorsB) > 1:
+            colorsB.pop()
+            colorsG.pop()
+            colorsR.pop()
+        else:
+            colorsB = [0]
+            colorsG = [0]
+            colorsR = [0]
 
+        # Escolhe os valores minimos e maximos na trackbar
+        b_min = cv2.setTrackbarPos('trackbar_min_b', window_name, min(colorsB))
+        g_min = cv2.setTrackbarPos('trackbar_min_g', window_name, min(colorsG))
+        r_min = cv2.setTrackbarPos('trackbar_min_r', window_name, min(colorsR))
+        b_max = cv2.setTrackbarPos('trackbar_max_b', window_name, max(colorsB))
+        g_max = cv2.setTrackbarPos('trackbar_max_g', window_name, max(colorsG))
+        r_max = cv2.setTrackbarPos('trackbar_max_r', window_name, max(colorsR))
 
 def main():
     # Global variables
@@ -72,7 +78,6 @@ def main():
     colorsB = []
     colorsG = []
     colorsR = []
-
 
     # initial setup
     slider_max = 255
@@ -85,18 +90,16 @@ def main():
 
     capture = cv2.VideoCapture(0)
 
-
     cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
     cv2.setMouseCallback(window_name,mouseRGB)
 
-    #Criação das trackbars
+    # Criação das trackbars
     cv2.createTrackbar('trackbar_min_r', window_name, r_min, slider_max, onTrackbar)
     cv2.createTrackbar('trackbar_min_g', window_name, g_min, slider_max, onTrackbar)
     cv2.createTrackbar('trackbar_min_b', window_name, b_min, slider_max, onTrackbar)
     cv2.createTrackbar('trackbar_max_r', window_name, r_max, slider_max, onTrackbar)
     cv2.createTrackbar('trackbar_max_g', window_name, g_max, slider_max, onTrackbar)
     cv2.createTrackbar('trackbar_max_b', window_name, b_max, slider_max, onTrackbar)
-
 
     while True:
 
@@ -105,8 +108,6 @@ def main():
         height,width,_, = image.shape       # get dimensions of the image
 
         image_gui = copy.deepcopy(image)
-
-        image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         #Vai buscar o valor da trackbar na imagem 'original'
         b_min = cv2.getTrackbarPos('trackbar_min_b', window_name)
@@ -127,6 +128,18 @@ def main():
 
         # Faz a máscara
         image_processed = cv2.inRange(image_gui, mins, maxs)
+        # Desenhar a verde na imagem original.
+        mask = image_processed.astype(np.bool)     # Converter a mask_largest em bool para puder usá-la como 'filtro' na imagem original.
+        image[mask] = (0, 255, 0)               # Pintar zonas escolhidas de verde
+        try:
+            M = cv2.moments(image_processed)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            dim_cross = 5
+            cv2.line(image, pt1=(cX - dim_cross, cY - dim_cross), pt2=(cX + dim_cross, cY + dim_cross), color=(0, 0, 255), thickness=2)
+            cv2.line(image, pt1=(cX - dim_cross, cY + dim_cross), pt2=(cX + dim_cross, cY - dim_cross), color=(0, 0, 255), thickness=2)
+        except:
+            pass
 
         # Mostra a imagem
         cv2.imshow(window_name, image)
@@ -148,7 +161,16 @@ def main():
                 pp.pprint(data)                          # Print with pretty print
 
                 file_handle.close()
-
+        if key == ord('c'):
+            colorsB = []
+            colorsG = []
+            colorsR = []
+            b_min = cv2.setTrackbarPos('trackbar_min_b', window_name, 0)
+            g_min = cv2.setTrackbarPos('trackbar_min_g', window_name, 0)
+            r_min = cv2.setTrackbarPos('trackbar_min_r', window_name, 0)
+            b_max = cv2.setTrackbarPos('trackbar_max_b', window_name, 0)
+            g_max = cv2.setTrackbarPos('trackbar_max_g', window_name, 0)
+            r_max = cv2.setTrackbarPos('trackbar_max_r', window_name, 0)
         if key == ord('q'):  # sai do programa e não guarda
             print('You pressed q, quitting without saving values.')
             break
