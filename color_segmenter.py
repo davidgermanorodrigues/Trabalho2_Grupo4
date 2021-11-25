@@ -1,19 +1,70 @@
 #!/usr/bin/python3
 
-import numpy as np
-import argparse
-import cv2
 import copy
 import json
 import pprint
 
+import cv2
+import numpy as np
+# Global variables
+window_name = 'original'
+file_name = 'limits.json'
+
 def onTrackbar(threshold):
     pass
+    # Funcionalidade Eye Dropper
+
+def mouseRGB(event, x, y, flags, param):
+    # Global variables
+    global image, data
+    global b_min, g_min, r_min, b_max, g_max, r_max
+    global colorsB, colorsG, colorsR
+
+
+    if event == cv2.EVENT_LBUTTONDOWN:
+        colorsB.append(image[y, x, 0])
+        colorsG.append(image[y, x, 1])
+        colorsR.append(image[y, x, 2])
+        colors = image[y, x]
+        print("Red: ", image[y, x, 0])
+        print("Green: ", image[y, x, 1])
+        print("Blue: ", image[y, x, 2])
+        print("BRG Format: ", colors)
+
+        # Escolhe os valores minimos e maximos na trackbar
+        b_min = cv2.setTrackbarPos('trackbar_min_b', window_name, min(colorsB))
+        g_min = cv2.setTrackbarPos('trackbar_min_g', window_name, min(colorsG))
+        r_min = cv2.setTrackbarPos('trackbar_min_r', window_name, min(colorsR))
+        b_max = cv2.setTrackbarPos('trackbar_max_b', window_name, max(colorsB))
+        g_max = cv2.setTrackbarPos('trackbar_max_g', window_name, max(colorsG))
+        r_max = cv2.setTrackbarPos('trackbar_max_r', window_name, max(colorsR))
+        # data = {'limits': {'B': {'max': int(colorsB + 30), 'min': int(colorsB - 30)},
+        #                    'G': {'max': int(colorsG + 30), 'min': int(colorsG - 30)},
+        #                    'R': {'max': int(colorsR + 30), 'min': int(colorsB - 30)}, }}
+        #
+        # with open(file_name, 'w') as file_handle:
+        #     print('You pressed left mouse button, writing color limits to file ' + file_name)
+        #     json.dump(data, file_handle)
+        #
+        #     pp = pprint.PrettyPrinter(indent=1)      # Set the dictionary initial indentation.
+        #     pp.pprint(data)                          # Print with pretty print
+        #     file_handle.close()
+
+    # Reset da Função
+    if event == cv2.EVENT_RBUTTONDOWN:
+        colorsB = []
+        colorsG = []
+        colorsR = []
+        b_min = cv2.setTrackbarPos('trackbar_min_b', window_name, 0)
+        g_min = cv2.setTrackbarPos('trackbar_min_g', window_name, 0)
+        r_min = cv2.setTrackbarPos('trackbar_min_r', window_name, 0)
+        b_max = cv2.setTrackbarPos('trackbar_max_b', window_name, 0)
+        g_max = cv2.setTrackbarPos('trackbar_max_g', window_name, 0)
+        r_max = cv2.setTrackbarPos('trackbar_max_r', window_name, 0)
+
 
 def main():
     # Global variables
-    window_name = 'original'
-    file_name = 'limits.json'
     global image_gray
     global image, data
     global b_min, g_min, r_min, b_max, g_max, r_max
@@ -22,54 +73,6 @@ def main():
     colorsG = []
     colorsR = []
 
-    # Funcionalidade Eye Dropper
-    def mouseRGB(event, x, y, flags, param):
-        # Global variables
-        global image, data
-        global b_min, g_min, r_min, b_max, g_max, r_max
-        global colorsB, colorsG, colorsR
-
-
-        if event == cv2.EVENT_LBUTTONDOWN:
-            colorsB.append(image[y, x, 0])
-            colorsG.append(image[y, x, 1])
-            colorsR.append(image[y, x, 2])
-            colors = image[y, x]
-            print("Red: ", image[y, x, 0])
-            print("Green: ", image[y, x, 1])
-            print("Blue: ", image[y, x, 2])
-            print("BRG Format: ", colors)
-
-            # Escolhe os valores minimos e maximos na trackbar
-            b_min = cv2.setTrackbarPos('trackbar_min_b', window_name, min(colorsB))
-            g_min = cv2.setTrackbarPos('trackbar_min_g', window_name, min(colorsG))
-            r_min = cv2.setTrackbarPos('trackbar_min_r', window_name, min(colorsR))
-            b_max = cv2.setTrackbarPos('trackbar_max_b', window_name, max(colorsB))
-            g_max = cv2.setTrackbarPos('trackbar_max_g', window_name, max(colorsG))
-            r_max = cv2.setTrackbarPos('trackbar_max_r', window_name, max(colorsR))
-            # data = {'limits': {'B': {'max': int(colorsB + 30), 'min': int(colorsB - 30)},
-            #                    'G': {'max': int(colorsG + 30), 'min': int(colorsG - 30)},
-            #                    'R': {'max': int(colorsR + 30), 'min': int(colorsB - 30)}, }}
-            #
-            # with open(file_name, 'w') as file_handle:
-            #     print('You pressed left mouse button, writing color limits to file ' + file_name)
-            #     json.dump(data, file_handle)
-            #
-            #     pp = pprint.PrettyPrinter(indent=1)      # Set the dictionary initial indentation.
-            #     pp.pprint(data)                          # Print with pretty print
-            #     file_handle.close()
-
-        # Reset da Função
-        if event == cv2.EVENT_RBUTTONDOWN:
-            colorsB = []
-            colorsG = []
-            colorsR = []
-            b_min = cv2.setTrackbarPos('trackbar_min_b', window_name, 0)
-            g_min = cv2.setTrackbarPos('trackbar_min_g', window_name, 0)
-            r_min = cv2.setTrackbarPos('trackbar_min_r', window_name, 0)
-            b_max = cv2.setTrackbarPos('trackbar_max_b', window_name, 0)
-            g_max = cv2.setTrackbarPos('trackbar_max_g', window_name, 0)
-            r_max = cv2.setTrackbarPos('trackbar_max_r', window_name, 0)
 
     # initial setup
     slider_max = 255
@@ -98,7 +101,7 @@ def main():
     while True:
 
         _, image = capture.read()  # get an image from the camera
-
+        image = cv2.flip(image, 1)          # Espelhar a imagem da webcam.
         height,width,_, = image.shape       # get dimensions of the image
 
         image_gui = copy.deepcopy(image)
