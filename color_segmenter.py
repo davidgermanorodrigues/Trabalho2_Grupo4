@@ -26,7 +26,7 @@ def instruction(h, w):
     org = (0, 30)
 
     # fontScale
-    fontScale = 1
+    fontScale = 0.5
 
     # Black color in BGR
     color = (0, 0, 0)
@@ -172,8 +172,7 @@ def main():
         # Faz a máscara
         image_processed = cv2.inRange(image_gui, mins, maxs)
         # Desenhar a verde na imagem original.
-        mask = image_processed.astype(
-            np.bool)  # Converter a mask_largest em bool para puder usá-la como 'filtro' na imagem original.
+        mask = image_processed.astype(np.bool)  # Converter a mask_largest em bool para puder usá-la como 'filtro' na imagem original.
         image[mask] = (0, 255, 0)  # Pintar zonas escolhidas de verde
 
         try:
